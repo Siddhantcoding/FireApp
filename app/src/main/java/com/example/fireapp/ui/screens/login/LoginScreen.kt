@@ -28,7 +28,11 @@ fun LoginScreen(
     state: LoginState = LoginState(),
     onEvent: (LoginEvent) -> Unit = {},
     onNavigateToRegister: () -> Unit = {},
+    onNavigateToHome : () -> Unit = {},
 ) {
+    if (state.isLoginSuccess){
+        onNavigateToHome()
+    }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

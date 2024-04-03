@@ -7,9 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.digi.fireapp.ui.screens.login.LoginScreen
+import com.digi.fireapp.ui.screens.login.LoginViewModel
 import com.digi.fireapp.ui.screens.register.RegisterScreen
 import com.example.fireapp.ui.screens.Register.RegisterViewModel
-import com.example.fireapp.ui.screens.login.LoginViewModel
 
 enum class Screen(val route: String) {
     Home("home"),
@@ -30,6 +30,9 @@ fun AppNavigation() {
                 onEvent = vm::onEvent,
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
+                },
+                onNavigateToHome = {
+                    navController.
                 })
         }
         composable(Screen.Register.route) {

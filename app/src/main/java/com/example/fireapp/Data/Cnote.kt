@@ -1,8 +1,9 @@
 package com.example.fireapp.Data
 
-class Cnote(
+data class CNote(
     val uid :String = "",
     val content : String = "",
-    val timestamp:Long = System.currentTimeMillis()
+    val tittle : String = "",
+    val importance : Int = 0,
 
 )
