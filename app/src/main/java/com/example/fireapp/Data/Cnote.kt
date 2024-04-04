@@ -6,4 +6,6 @@ data class CNote(
     val tittle : String = "",
     val importance : Int = 0,
 
-)
+) {
+
+}

@@ -1,7 +1,7 @@
 package com.digi.fireapp.ui.screens.login
 
 import androidx.lifecycle.ViewModel
-import com.example.fireapp.service.AuthService
+import com.digi.fireapp.service.AuthService
 import com.example.fireapp.ui.screens.login.LoginEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
