@@ -11,15 +11,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.digi.fireapp.ui.screens.upload.DocState
@@ -40,84 +44,100 @@ import com.digi.fireapp.ui.screens.upload.UploadState
 
 @Composable
 fun DocScreen(
-    state : DocState = DocState(),
-    onEvent : (DocEvent) -> Unit,
-    onBack : () -> Unit,
+    state: DocState = DocState(),
+    onEvent: (DocEvent) -> Unit,
+    onBack: () -> Unit,
 ) {
     val result = remember { mutableStateOf<Uri?>(null) }
 
     Scaffold(
         bottomBar = {
-            UploadBar(state,onEvent, result)
+            UploadBar(state, onEvent, result)
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier.padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally)
-        { result.value?.let { image ->
-            //Use Coil to display the selected image
-            val painter = rememberAsyncImagePainter(
-                ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(data = image)
-                    .build()
-            )
-            Box {
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clip(shape = MaterialTheme.shapes.extraLarge),
-                    contentScale = ContentScale.Crop
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
+            result.value?.let { image ->
+                //Use Coil to display the selected image
+                val painter = rememberAsyncImagePainter(
+                    ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(data = image)
+                        .build()
                 )
-                FilledIconButton(onClick = { DocEvent.UploadImage(image) },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp),
-                    enabled = state.uploadState == UploadState.IDLE
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Done,
-                        contentDescription = "Confirm Upload Image",
-                    )
+                LazyHorizontalGrid(rows = GridCells.Fixed(2)) {
+                    items(state.Documents) { doc ->
+                        Card {
+                            AsyncImage(
+                                model = doc.url, contentDescription = doc.name,
+                                modifier = Modifier.size(100.dp)
+                            )
+                        }
+                        }
+                    }
+                    Box {
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .clip(shape = MaterialTheme.shapes.extraLarge),
+                            contentScale = ContentScale.Crop
+                        )
+                        FilledIconButton(
+                            onClick = { DocEvent.UploadImage(image) },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(8.dp),
+                            enabled = state.uploadState == UploadState.IDLE
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                contentDescription = "Confirm Upload Image",
+                            )
 
+                        }
+
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(100.dp),
+                            strokeWidth = 10.dp,
+                            trackColor = MaterialTheme.colorScheme.secondaryContainer,
+                        )
+
+                    }
                 }
 
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(100.dp),
-                    strokeWidth = 10.dp,
-                    trackColor = MaterialTheme.colorScheme.secondaryContainer,
+            }
+
+        }
+
+    }
+
+
+    @Composable
+    fun UploadBar(state: DocState, onEvent: (DocEvent) -> Unit, result: MutableState<Uri?>) {
+        val launcher =
+            rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+                result.value = it
+
+            }
+        BottomAppBar {
+            ExtendedFloatingActionButton(onClick = {
+                onEvent(DocEvent.Reset)
+                launcher.launch(
+                    PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
+            }) {
+                Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "Browse")
+                Text(text = "Select Image")
+
             }
         }
 
-        }
-
     }
-
-}
-
-
-@Composable
-fun UploadBar(state: DocState, onEvent: (DocEvent) -> Unit, result: MutableState<Uri?>) {
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-        result.value = it
-
-    }
-    BottomAppBar {
-        ExtendedFloatingActionButton(onClick = {
-            launcher.launch(
-                PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }) {
-            Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "Browse")
-            Text(text = "Select Image")
-
-        }
-    }
-
-}
