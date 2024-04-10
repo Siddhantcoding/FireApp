@@ -15,6 +15,24 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
+ data class BookResponse(
+    val items: List<BookItem>,
+    val totalItems: Int,
+    val kind: String,
+)
+data class BookItem(
+    val id: String,
+    val volumeInfo: VolumeInfo,
+)
+data class VolumeInfo(
+    val title: String,
+    val authors: List<String>,
+    val publisher: String,
+    val publishedDate: String,
+    val description: String,
+    val pageCount: Int,
+    val categories: List<String>,
+)
 
 interface BookApiService {
     @GET("volumes")
